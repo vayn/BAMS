@@ -9,7 +9,7 @@ BAMS 是一个用来管理银行账户信息的工具，目前仍处在初级开
 
 ## 依赖
 
-BAMS 依赖 PyQt4 框架及 lxml 库，仅可在 Windows 平台上正常使用
+BAMS 依赖 PyQt4，pysqlite2 及 lxml，仅在 Windows 平台上测试正常使用
 
 ## 致谢
 

@@ -2,6 +2,7 @@
 import os
 import sys
 import utils
+import model
 from PyQt4 import QtGui, QtCore
 from string import strip
 from ui_bams import Ui_Form
@@ -11,10 +12,7 @@ class BAMS(QtGui.QWidget, Ui_Form):
   def __init__(self, parent=None):
     QtGui.QWidget.__init__(self, parent)
     self.setupUi(self)
-
-    self.data = utils.get_data()
     self.clipboard = QtGui.QApplication.clipboard()
-
     self.initUi()
     self.show()
 
@@ -27,7 +25,7 @@ class BAMS(QtGui.QWidget, Ui_Form):
     self.setFixedSize(740, 465)
 
     self.leSearch.setFocus()
-    self.lwResult.setSortingEnabled(1)
+    self.lwResult.setSortingEnabled(0) # 不对ListWidget排序
     self.initTwResult()
 
     self.leSearch.returnPressed.connect(self.display)
@@ -36,18 +34,18 @@ class BAMS(QtGui.QWidget, Ui_Form):
 
   def initTwResult(self):
     tableWidth = self.twResult.size().width()
-    count = len(self.data[0])
-    colWidth = int(tableWidth/count)
+    colCount = 4
+    colWidth = int(tableWidth/colCount)
 
     self.twResult.setRowCount(1)
-    self.twResult.setColumnCount(count)
+    self.twResult.setColumnCount(colCount)
     #self.twResult.setShowGrid(False)
     #self.twResult.setEditTriggers(QtGui.QTableWidget.NoEditTriggers)
     self.twResult.horizontalHeader().setVisible(False)
     self.twResult.verticalHeader().setVisible(False)
     self.twResult.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
-    for i in range(count):
+    for i in range(colCount):
       self.twResult.setColumnWidth(i, colWidth)
 
   def setTwResult(self, item):
@@ -65,9 +63,8 @@ class BAMS(QtGui.QWidget, Ui_Form):
     kw = unicode(self.leSearch.text())
     if len(kw) == 0:
       return []
-    col = 0 if kw.isdigit() else 1 # 按账号或账户搜索
-
-    res = [acc for acc in self.data if kw in acc[col]]
+    field = 'no' if kw.isdigit() else 'name' # 按账号或账户搜索
+    res = model.get_acc(field, kw)
     return res
 
   def display(self):
