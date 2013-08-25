@@ -21,6 +21,11 @@ lib64
 # Installer logs
 pip-log.txt
 
+# Vim temp files
+*~
+*.swp
+*.swo
+
 # Unit test / coverage reports
 .coverage
 .tox
