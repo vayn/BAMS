@@ -8,13 +8,12 @@ CREATE TABLE account (
 CREATE UNIQUE INDEX data_idx ON account(acc_no, counter);
 
 CREATE VIRTUAL TABLE v_account USING fts4(
-  idx_no TEXT,
   idx_name TEXT,
   source_id INTEGER);
 
 CREATE TRIGGER v_account_update
   AFTER UPDATE ON account BEGIN
-    UPDATE v_account SET idx_no = NEW.acc_no, idx_name = NEW.acc_name
+    UPDATE v_account SET idx_name = NEW.acc_name
     WHERE source_id=NEW.id;
 END;
 

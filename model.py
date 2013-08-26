@@ -33,9 +33,9 @@ class ImportData:
         if (idx == 'BranchName') and (text is None):
           text = el.find('AreaProv').text
           if text is None:
-            text = 'None'
+            text = ''
         elif text is None:
-          text = 'None'
+          text = ''
         info.append(text)
       acc.append(info)
 
@@ -50,13 +50,29 @@ class ImportData:
 
     return acc
 
+  def beijing_handler(self, raw_data):
+    idx_list = ['AccNo', 'Name', 'RecOpenAccBranchName', 'ReceeArea']
+
+    doc = etree.parse(raw_data).getroot().find('ReceeList')
+    acc = []
+
+    for el in doc:
+      attrib = el.attrib
+      acc.append([attrib[idx] for idx in idx_list])
+
+    return acc
+
 
 def get_acc(field, kw):
-  kw = ' '.join(kw.replace(' ', ''))
-  stmt = """SELECT acc_no, acc_name, counter, area
-  FROM account AS acc JOIN (
-  SELECT source_id FROM v_account WHERE idx_%(field)s MATCH ? LIMIT 50) AS vacc
-  WHERE acc.id=vacc.source_id;""" % {'field': field}
+  if field == 'name':
+    kw = ' '.join(kw.replace(' ', ''))
+    stmt = """SELECT acc_no, acc_name, counter, area
+    FROM account AS acc JOIN (
+    SELECT source_id FROM v_account WHERE idx_name MATCH ? LIMIT 50) AS vacc
+    WHERE acc.id=vacc.source_id;"""
+  elif field == 'no':
+    stmt = """SELECT acc_no, acc_name, counter, area
+    FROM account WHERE instr(acc_no, ?)"""
   cur.execute(stmt, (kw,))
   res = cur.fetchall()
   acc = []
@@ -73,19 +89,19 @@ def insert_db(bank, raw_data):
 
   r_stmt = """INSERT OR REPLACE INTO account (id, acc_no, acc_name, counter,
   area) VALUES (:id, :acc_no, :acc_name, :counter, :area);"""
-  v_stmt = """INSERT OR REPLACE INTO v_account (idx_no, idx_name, source_id)
-  VALUES (?, ?, ?);"""
+  v_stmt = """INSERT OR REPLACE INTO v_account (idx_name, source_id)
+  VALUES (?, ?);"""
 
   for acc in data:
     field = {
       "id": None,
-      "acc_no": ' '.join(acc[0]),
+      "acc_no": acc[0],
       "acc_name": ' '.join(acc[1]),
       "counter": acc[2],
       "area": acc[3]
     }
     sid = cur.execute(r_stmt, field).lastrowid
-    cur.execute(v_stmt, (field['acc_no'], field['acc_name'], sid))
+    cur.execute(v_stmt, (field['acc_name'], sid))
 
   conn.commit()
 

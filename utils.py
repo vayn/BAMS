@@ -5,7 +5,7 @@ import _winreg as winreg
 
 
 __author__ = "Vayn a.k.a. VT <vayn@vayn.de>"
-__version__ = '0.6.0'
+__version__ = '0.7.0'
 
 
 def setappid():
