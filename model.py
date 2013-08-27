@@ -93,6 +93,7 @@ def insert_db(bank, raw_data):
   VALUES (?, ?);"""
 
   for acc in data:
+    acc = map(lambda x: x.strip(), acc) # 删除多余空格
     field = {
       "id": None,
       "acc_no": acc[0],

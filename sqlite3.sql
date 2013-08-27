@@ -5,7 +5,7 @@ CREATE TABLE account (
   counter TEXT,
   area TEXT);
 
-CREATE UNIQUE INDEX data_idx ON account(acc_no, counter);
+CREATE UNIQUE INDEX data_idx ON account(acc_no);
 
 CREATE VIRTUAL TABLE v_account USING fts4(
   idx_name TEXT,

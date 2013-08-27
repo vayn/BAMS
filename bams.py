@@ -25,11 +25,11 @@ class BAMS(QtGui.QWidget, Ui_Form):
     self.setFixedSize(740, 465)
 
     self.leSearch.setFocus()
-    self.lwResult.setSortingEnabled(0) # 不对ListWidget排序
+    self.lwResult.setSortingEnabled(True) # 对ListWidget排序
     self.initTwResult()
 
     self.leSearch.returnPressed.connect(self.display)
-    self.lwResult.itemClicked.connect(self.setTwResult)
+    self.lwResult.itemSelectionChanged.connect(self.setTwResult)
     self.twResult.itemClicked.connect(self.copy)
 
   def initTwResult(self):
@@ -48,7 +48,8 @@ class BAMS(QtGui.QWidget, Ui_Form):
     for i in range(colCount):
       self.twResult.setColumnWidth(i, colWidth)
 
-  def setTwResult(self, item):
+  def setTwResult(self):
+    item = self.lwResult.selectedItems()[0]
     info = unicode(item.text()).split()
     item = lambda s: QtGui.QTableWidgetItem(s)
 
