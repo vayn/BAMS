@@ -81,7 +81,7 @@ def get_acc(field, kw):
     FROM account AS acc JOIN (
       SELECT rank(matchinfo(v_account)) AS r, source_id FROM v_account
       WHERE idx_name MATCH ?) AS vacc
-    WHERE acc.id=vacc.source_id ORDER BY r DESC LIMIT 50;"""
+    WHERE acc.id=vacc.source_id ORDER BY vacc.r DESC LIMIT 50;"""
   elif field == 'no':
     stmt = """SELECT acc_no, acc_name, counter, area
     FROM account WHERE instr(acc_no, ?)"""
