@@ -1,6 +1,7 @@
 # vim: set fileencoding=utf-8:
 import os
 import sys
+import struct
 from lxml import etree
 from pysqlite2 import dbapi2 as sqlite3
 
@@ -63,13 +64,24 @@ class ImportData:
     return acc
 
 
+def make_rank_func(weights):
+  def rank(matchinfo):
+    matchinfo = struct.unpack("I"*(len(matchinfo)/4), matchinfo)
+    it = iter(matchinfo[2:])
+    return sum(x[0]*w/x[1]
+        for x, w in zip(zip(it, it, it), weights) if x[1])
+  return rank
+
 def get_acc(field, kw):
+  conn.create_function("rank", 1, make_rank_func((1., .1, 0, 0)))
+
   if field == 'name':
     kw = ' '.join(kw.replace(' ', ''))
     stmt = """SELECT acc_no, acc_name, counter, area
     FROM account AS acc JOIN (
-    SELECT source_id FROM v_account WHERE idx_name MATCH ? LIMIT 50) AS vacc
-    WHERE acc.id=vacc.source_id;"""
+      SELECT rank(matchinfo(v_account)) AS r, source_id FROM v_account
+      WHERE idx_name MATCH ?) AS vacc
+    WHERE acc.id=vacc.source_id ORDER BY r DESC LIMIT 50;"""
   elif field == 'no':
     stmt = """SELECT acc_no, acc_name, counter, area
     FROM account WHERE instr(acc_no, ?)"""

@@ -49,12 +49,17 @@ class BAMS(QtGui.QWidget, Ui_Form):
       self.twResult.setColumnWidth(i, colWidth)
 
   def setTwResult(self):
-    item = self.lwResult.selectedItems()[0]
-    info = unicode(item.text()).split()
-    item = lambda s: QtGui.QTableWidgetItem(s)
+    try:
+      item = self.lwResult.selectedItems()[0]
+      info = unicode(item.text()).split()
+      # 将QListWidgetItem 转为 QTableWidgetItem
+      item = lambda s: QtGui.QTableWidgetItem(s)
 
-    for i in range(self.twResult.columnCount()):
-      self.twResult.setItem(0, i, item(info[i]))
+      for i in range(self.twResult.columnCount()):
+        self.twResult.setItem(0, i, item(info[i]))
+    except IndexError:
+      # 若 QListWidget.selectedItems() 返回空数组
+      pass
 
   @QtCore.pyqtSignature("")
   def on_pbSearch_clicked(self):
