@@ -76,7 +76,7 @@ def get_acc(field, kw):
   conn.create_function("rank", 1, make_rank_func((1., .1, 0, 0)))
 
   if field == 'name':
-    kw = ' '.join(kw.replace(' ', ''))
+    kw = ' '.join(kw.strip())
     stmt = """SELECT acc_no, acc_name, counter, area
     FROM account AS acc JOIN (
       SELECT rank(matchinfo(v_account)) AS r, source_id FROM v_account
@@ -87,10 +87,7 @@ def get_acc(field, kw):
     FROM account WHERE instr(acc_no, ?)"""
   cur.execute(stmt, (kw,))
   res = cur.fetchall()
-  acc = []
-  for info in res:
-    acc.append(map(lambda x: x.replace(' ', ''), info))
-  return acc
+  return res
 
 def create_db():
   sql = open("sqlite3.sql").read()
@@ -109,12 +106,12 @@ def insert_db(bank, raw_data):
     field = {
       "id": None,
       "acc_no": acc[0],
-      "acc_name": ' '.join(acc[1]),
+      "acc_name": acc[1],
       "counter": acc[2],
       "area": acc[3]
     }
     sid = cur.execute(r_stmt, field).lastrowid
-    cur.execute(v_stmt, (field['acc_name'], sid))
+    cur.execute(v_stmt, (' '.join(field['acc_name']), sid))
 
   conn.commit()
 
